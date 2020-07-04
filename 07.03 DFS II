@@ -1,0 +1,230 @@
+1. Word Break I  && Word Break II
+[07.02update] Restore IP address
+
+//High-level: Use DFS and there are four levels, and each level represent what the number has been chosen in the index part(zero - base) for each single level, the number must stay from [0, 255]
+
+//// Details：4个位置：每个位置上的数必须符合0 - 255的条件，每个位置之间又一个'.'。
+// corner case 是ip == null || ip.length() <= 3 || ip.length() > 12 注意这里一定是 ">12"等于12 完全有可能为真
+// return empty string;
+// base case 是啥：base case是index == 4；
+// 然后再用sb.length() == ip.length() + 4(这里每次append 进StringBuilder都要多计算一个点)
+// main logic就是从最小valid的单位去割它，即从长度为“1”开始割，至多到Math.max(3, ip.length());
+// （因为小于256，但是要考虑到此时的ip可能很短，所以取Math.max(3, ip.length());
+// 把符合条件的塞进去进入下一recursion
+// 然后"吐出来的部分" 因为这里吃进去的长度变化的，因此要动态得吐出来，就搞一个length记录吃进去的长度
+// 然后再for 循环中吐出来（注意：'.'是一定要吐出来的，这里要分开写）
+
+******************************************************************************************
+******************************************************************************************
+[07.03] Dictionary Word I
+
+package DFS_II;
+import java.util.*;
+
+//High-level: DP 或者用 DFS + memoization
+//DFS:用一个map 存<String, Boolean>, 目的是让之后遇到相同的string直接返回map即可；
+
+//Details：
+//base case: s.length() == 0 update map and return true;
+//main logic: 不断去更新和判断dict 里面的string能不能匹配上现在的s的开头某一段，如果任何一段都没有那就update map and return false
+//如果有符合的那就recursively的查它的下一个，直到base case为止
+//assume s, wordDict can not be null or empty;
+
+public class CuttingDictionary {
+   public static void main(String[] args) {
+       String s = "aaaaaaaaaaaab";
+       String[] wordDict = {"a","aaaa", "aaaaaaaaaa"};
+       String s2 = "laicode";
+       String[] wordDict2 = {"lai", "c","o","co", "od","de"};
+       System.out.println(getResult(s2, wordDict2));
+   }
+
+   private static boolean getResult(String s, String[] wordDict) {
+       Set<String> set = getWordDict(wordDict);
+       Map<String, Boolean> map = new HashMap<>();
+       return consistWordOrNot(s, map, set);
+   }
+
+   private static Set<String> getWordDict(String[] wordDict) {
+       Set<String> set = new HashSet<>();
+       for (int i = 0; i < wordDict.length; i++) {
+           set.add(wordDict[i]);
+       }
+       return set;
+   }
+
+   private static boolean consistWordOrNot(String s, Map<String, Boolean> map, Set<String> set) {
+       //base case
+       if (map.containsKey(s)) {
+           return map.get(s);
+       }
+       //main logic
+       for (String str : set) {
+           if (s.startsWith(str)) {
+               String next = s.substring(str.length());
+               if (next.length() == 0) {
+                   map.put(s, true);
+                   return true;
+               } else {
+                   if (consistWordOrNot(next, map, set)) {
+                       map.put(s, true);
+                       return true;
+                   }
+               }
+           }
+       }
+       map.put(s, false);
+       return false;
+   }
+
+   /*
+   Approach 2 DP
+   High-level: linear scan 回头看，用一个长度为"s.length() + 1"的boolean数组记录；
+   boolean[i] represent 从[0, i]范围里，能否在字典里找到匹配当前string的组合；
+   public static void main(String[] args) {
+       String s = "aaaaaaaaaaaab";
+       String[] wordDict = {"a","aaaa", "aaaaaaaaaa"};
+       System.out.println(getResult(s, wordDict));
+   }
+
+   private static boolean getResult(String s, Set<String> wordDict) {
+       boolean[] valid = new boolean[s.length() + 1];
+       //因为空string总是为真
+       valid[0] = true;
+       for (int i = 1; i <= s.length(); i++) {
+           if (wordDict.contains(s.substring(0, i))) {
+               valid[i] = true;
+               continue;
+           }
+           for (int j = 0; j < i; j++) {
+               if (valid[j] && wordDict.contains(s.substring(j, i))) {
+                   valid[i] = true;
+                   break;
+               }
+           }
+       }
+       return valid[s.length()];
+   }
+//如果s 的长度为m
+//如果set 的个数为n
+   T: O(m^2);
+   S: O(m);
+    */
+}
+
+//String[] array -> Set<String> O(n)
+//一共有n个循环，s.startswith()如果每个set的长度默认为很小，如果可以默许这个操作是o(1)的
+//那每个循环需要至多花费m个(string.substring)；
+//T: n + m * n -> m * n;
+
+//map空间占用至多m，把string分成m断，顶天了
+//recursive call stack 至多n个
+//S: Math.MAX(m, n) + m;
+
+
+******************************************************************************************
+******************************************************************************************
+
+
+
+
+
+[07.03] Dictionary Word I Follow up： word Break II
+package DFS_II;
+//leetcode 140
+//https://leetcode.com/problems/word-break-ii/
+
+import java.util.*;
+
+//以下是word breakII
+//就是输出变了下，还是用DFS + Memo
+//very similar to the last question word break I(cutting Dictionary)
+//High level:
+//also use DFS(bottom up) + memoization by using a hashMap 
+//the bottom up solution enable to find the final postfix substring(if applicable), then backtrack //to the last level to form concatenation with the second to last postfix(if applicable) and do it //recursively
+//because there are duplicated substring in the calculation process, so use a hashMap can //avoid duplicate calculation
+//the key in the hashMap is the substring of s and the value (in the hashMap) is the list of //ways of consisting this substring
+
+//Details:
+//transfer the list to a set(实际上好像没有节约什么时间复杂度，因为只有在抓取dictionary里
+//的string的时候用上了，
+//反而还增加了一个o(m), 空间也增加了, 我觉得不需要转化
+//memo case: if the current string matched and we should return the list of //combinations(each combination represent as a string)
+
+//base case:
+//(string str, string curString)
+//next.length() == 0 which means we have processed the whole string
+//so add the current string into the counterpart area in the map -->
+//map.get(curString).add(str);
+
+//main logic:
+//recursively find the final postfix and backtrack to the last level and combine the current //string and put it into the counter HashMap or if it is impossible to form the current string by //using the elements in wordDict then return an empty list;
+
+public class WordBreakII {
+   public static void main(String[] args) {
+       String s1 = "aaaaaaaaaaab";
+       String[] wordDict1 = {"a", "aaaa","aa", "aaaaaaaaaa","b"};
+       String s = "leetcode";
+       String[] wordDict = {"leet", "code"};
+       String s2 = "wod";
+       String[] wordDict2 = {"w","ood","o","od","wood"};
+       System.out.println(getResult(s1, wordDict1));
+   }
+
+   private static List<String> getResult(String s, String[] wordDict) {
+       Set<String> set = getWordDict(wordDict);
+       Map<String, List<String>> map = new HashMap<>();
+       return consistWordOrNot(s, map, set);
+   }
+
+   private static Set<String> getWordDict(String[] wordDict) {
+       Set<String> set = new HashSet<>();
+       for (int i = 0; i < wordDict.length; i++) {
+           set.add(wordDict[i]);
+       }
+       return set;
+   }
+
+   private static List<String> consistWordOrNot(String s, Map<String, List<String>> map, Set<String> set) {
+       //memo case
+       if (map.containsKey(s)) {
+           return map.get(s);
+       }
+       //main logic
+       map.put(s, new ArrayList<String>());
+       for (String str : set) {
+           if (s.startsWith(str)) {
+               String next = s.substring(str.length());
+               //到DFS里面再加，这样就省了StringBuilder
+               // map.get(s).add(str);
+               if (next.length() == 0) {
+                   map.get(s).add(str);
+               }
+               //这里不该有else 因为无论怎样这个DFS都是要执行下去的，因为是recursively的call这个function
+               //这里应该是back tracking 要触底然后再返回
+               //else {
+               for (String sub : consistWordOrNot(next, map, set)) {
+                   map.get(s).add(str + " " + sub);
+               }
+           }
+       }
+       return map.get(s);
+   }
+}
+//如果string的长度是m
+//wordict的个数是n
+//和上题不同的是，这里需要在call stack中执行for循环；
+//输出有多少个，我想至多n^m个(每个char都有n种，一共有m个char可以填）
+//但我觉得应该远比这个小；
+//T: O(m * n * n^m)（这个答案心里没有底）-> 
+
+之后参考了solution
+//把整个过程看成是graph来理解，至多有m个prefix，因此至多有m^2种途径建立可能性的match
+//然后再考虑到worst case的组合是2^m
+//->T: O(2^m + m^2 )
+//S: O(2^m * m）;
+
+
+2. Generate Random Maze
+
+maze okay
