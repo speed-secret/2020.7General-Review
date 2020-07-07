@@ -79,4 +79,29 @@ public class LongestCommonSubsequence {
     }
 }
 
+T:O(n^2)
+S:O(n ^ 2) -> O(Min(s.length(), t.length()); 
 
+以下是优化空间后的核心代码：
+   //   there are no fundamental change, no logic change, just use two arrays to replace the whole matrix which also satisfies the requirement of this question.
+
+   //   make sure to use the shorter one as the the size of the new array;
+if (b.length() > a.length()) {
+       return getMaximumLengthOfTwoStrings(b, a);
+   }
+   int[] lastRow = new int[b.length() + 1];
+   for (int i = 1; i <= a.length(); i++) {
+       int[] curRow = new int[b.length() + 1];
+       for (int j = 1; j <= b.length(); j++) {
+           if (a.charAt(i - 1) == b.charAt(j - 1)) {
+               curRow[j] = lastRow[j - 1] + 1;
+           } else {
+               curRow[j] = Math.max(lastRow[j], curRow[j - 1]);
+           }
+       }
+       for (int j = 0; j <= b.length(); j++) {
+           lastRow[j] = curRow[j];
+       }
+   }
+   return lastRow[b.length()];
+}
