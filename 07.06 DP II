@@ -1,0 +1,82 @@
+1.find the longest subsequence
+
+package DP_2D;
+
+//Laicode 177
+/*
+Find the length of longest common subsequence of two given strings.
+
+Assumptions
+
+The two given strings are not null
+Examples
+
+S = “abcde”,
+T =   “cbabdfe”, the longest common subsequence of s and t is {‘a’, ‘b’, ‘d’, ‘e’}, the length is 4.
+ */
+public class LongestCommonSubsequence {
+    //High level:
+    //use a 2-D matrix to record the max of common subsequence of String S and String T;
+    //to check each subsequence step by step so T:O(N^2)
+    //use two extra lines(can easily avoid edge case) so the matrix was supposed to set up as its following:
+    //int[][] matrix = new int[s.length() + 1][t.length() + 1];
+    
+    //base case:
+    //matrix[0][0] = 0 empty char were not regarded as equal
+    //for each position of row = 0 / col = 0 --> matrix[i][j] = 0;
+    //one subsequence is always compare with another empty string
+    //induction rule:
+    //case 1: if two chars are equal then check its last diagonal's value + 1
+    //(update current value: add one with its previous subsequence(without current char))
+    //case 2: else select the max of its upper row/left column result(means no change, but need to
+    // inherit the larger one);
+    //if (s.charAt(i - 1) == t.charAt(j - 1)) {
+    //  matrix[i][j] = matrix[i - 1][j - 1] + 1;
+    //} else {
+    //  matrix[i][j] = Math.max(matrix[i - 1][j], matrix[i][j - 1]);
+    //}
+
+    //原本的思路，没有进行深度思考，觉得做过edit distance，就把edit distance的答案迁移过来以为就是对的；
+    //实际上这题的情况和edit distance不同，因为matrix的物理意义不一样
+    //if (s.charAt(i) == t.charAt(j)) {
+    //   matrix[i][j] = Math.max(matrix[i - 1][j] + 1, matrix[i][j - 1] + 1);
+    //   matrix[i][j] = Math.max(matrix[i][j], matrix[i - 1][j - 1] + 1);
+    //} else {
+    //   matrix[i][j] = Math.max(matrix[i - 1][j], matrix[i][j - 1]);
+    //   matrix[i][j] = Math.max(matrix[i][j], matrix[i - 1][i - 1]);
+    //}
+    /*0 1 2 3 4 5 6 7
+    0 0 c b a b d f e
+  0 0 0 0 0 0 0 0 0 0
+  1 a 0 0 0 1 1 1 1 1 x x x x x
+  2 b 0 0 1 2 2 2 2 2 x x x x x
+  3 c 0 1 1 1 2 2 2 2 x x x x x x
+  4 d 0 1 1 1 2 3 3 3
+  5 e 0 1 1 1 2 3 3 4
+     */
+    //assume none of them is null
+    public static void main(String[] args) {
+        String a = "abcde";
+        String b = "cbabdfe";
+        System.out.println(getMaximumLengthOfTwoStrings(a, b));
+    }
+
+    private static int getMaximumLengthOfTwoStrings(String a, String b) {
+        if (a.length() == 0 || b.length() == 0) {
+            return 0;
+        }
+        int[][] matrix = new int[a.length() + 1][b.length() + 1];
+        for (int i = 1; i <= a.length(); i++) {
+            for (int j = 1; j <= b.length(); j++) {
+                if (a.charAt(i - 1) == b.charAt(j - 1)) {
+                    matrix[i][j] = matrix[i - 1][j - 1] + 1;
+                } else{
+                    matrix[i][j] = Math.max(matrix[i - 1][j], matrix[i][j - 1]);
+                }
+            }
+        }
+        return matrix[a.length()][b.length()];
+    }
+}
+
+
