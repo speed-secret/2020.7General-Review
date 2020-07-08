@@ -1,0 +1,209 @@
+1.今日量化目标3道题，含一道非常solid的分析；
+
+1. Edit distance:
+
+//High level
+//use a 2-D matrix to represent the minimum steps that enable one string into another string;
+//use an extra line of col and row can be save the chance of encountering the edge case
+//matrix[i][j] = new int[one.length() + 1][two.length() + 1];
+
+//Base case:
+//matrix[0][0] = 0;
+//and for each i = 0 matrix[i][j] = j;
+//and for each j = 0 matrix[i][j] = i;
+
+//induction rule:
+//if (one.charAt(i - 1) == two.charAt(j - 1)) {
+//  matrix[i][j] = matrix[i - 1][j - 1];
+  } else {
+    matrix[i][j] = Math.min(matrix[i - 1][j] + 1, matrix[i][j - 1] + 1);
+    matrix[i][j] = Math.min(matrix[i][j], matrix[i - 1][j - 1] + 1);
+  }
+
+ */
+
+public class EditDistance {
+    public static void main(String[] args) {
+        String one = "sigh";
+        String two = "asith";
+        System.out.println(getMinimumSteps(one, two));
+    }
+
+    private static int getMinimumSteps(String a, String b) {
+        if (a.length() == 0) {
+            return b.length();
+        } else if (b.length() == 0) {
+            return a.length();
+        }
+        int[][] matrix = new int[a.length() + 1][b.length() + 1];
+        //必须把i==0 j ==0 包括进去，因为他们所对应的matrix不可能是0，所以需要根据情况修改它的值
+        //否则参考的值就不对了；
+        for (int i = 0; i < matrix.length; i++) {
+            for (int j = 0; j < matrix[0].length; j++) {
+                if (i == 0) {
+                    matrix[i][j] = j;
+                } else if (j == 0) {
+                    matrix[i][j] = i;
+                } else if (a.charAt(i - 1) == b.charAt(j - 1)) {
+                    matrix[i][j] = matrix[i - 1][j - 1];
+                } else {
+                    //need to update at least one step
+                    matrix[i][j] = Math.min(matrix[i - 1][j], matrix[i][j - 1]) + 1;
+                    matrix[i][j] = Math.min(matrix[i][j], matrix[i - 1][j - 1] + 1);
+                }
+            }
+        }
+        return matrix[a.length()][b.length()];
+    }
+}
+
+
+2.Find the longest common substring 
+package DP_2D;
+import java.util.*;
+
+High level:
+//use 2-D matrix to record the num of repeated elements in those two strings
+//use a int variable - length to store its matched length
+//use another int variable to record the start index of the matched substring
+
+//base case:
+//if (i == 0 && j == 0) {
+    if (s.charAt(i) == t.charAt(j)) {
+        matrix[i][j] = 1;
+    } else {
+        matrix[i][j] = 0;
+    }
+//}
+//
+//induction rule:
+////if (s.charAt(i) == t.charAt(j)) {
+        if (s.charAt(i - 1) != t.charAt(j - 1)) {
+////          curIndex = i;
+              //reset the length
+              matrix[i][j] = 1;
+        }
+//      else if (s.charAt(i - 1) == t.charAt(j - 1)) {
+              matrix[i][j] = matrix[i - 1][j - 1] + 1;
+        }
+  } else {
+    matrix[i][j] = Math.max(matrix[i - 1][j], matrix[i][j - 1]);
+  }
+//          if (globalLength < matrix[i][j]) {
+                globalLength = matrix[i][j];
+            }
+    return s.substring(start, start + globalLength);
+//          那么就可以更新了；
+//我的物理意义是什么，我的物理意义就是当前的current matched Length
+//0 0 a b c d e f g
+//0 0 0 0 0 0 0 0 0
+//c 0 0 0 1 1 1 1 1
+//d 0 0 0 1 2 2 2 2
+//q 0 0 0 1 2 2 2 2
+//e 0 0 0 1 2 1 1 1
+//f 0 0 0 1 2 1 2 2
+//g 0 0 0 1 2 1 2 3 -> globalLength
+int start = 2;
+int length = 3;
+s.substring(start, start + index);
+//how to che
+ */
+
+public class LongestCommonSubstring {
+    public static void main(String[] args) {
+        String s = "dnegqfbba";
+        String t = "dceg";
+        String t2 = "fnnegfbba";
+        System.out.println(getTheBiggestMatchedString(s, t2));
+    }
+
+    private static String getTheBiggestMatchedString(String s, String t) {
+        //assume none of them is null
+        /*
+          0 0 d n e g q f b b a
+          0 0 0 0 0 0 0 0 0 0 0
+          f 0 0 0 0 0 0 1 0 0 0
+          n 0 0 1 0 0 0 0 0 0 0
+          e 0 0 0 2 0 0 0 0 0 0
+          g 0 0 0 0 3 0 0 0 0 0
+          f 0 0 0 0 0 0 1 0 0 0
+          b 0 0 0 0 0 0 0 2 0 0
+          b 0 0 0 0 0 0 0 0 3 0
+          a 0 0 0 0 0 0 0 0 0 4
+         */
+        if (s.length() == 0 || t.length() == 0) {
+            return "";
+        }
+        /*
+        int globalLength = 0;
+        int globalStart = 0;
+        int curStart = 0;
+        //set a 2D matrix to store the number of matched characters in those two strings
+        int[][] matrix = new int[s.length() + 1][t.length() + 1];
+        for (int i = 1; i < matrix.length; i++) {
+            for (int j = 1; j < matrix[0].length; j++) {
+                boolean ifCharEquals = s.charAt(i - 1) == t.charAt(j - 1);
+                if (ifCharEquals) {
+                    if ((i >= 2 && j >= 2) && s.charAt(i - 2) == t.charAt(j - 2)) {
+                        matrix[i][j] = matrix[i - 1][j - 1] + 1;
+                    } else {
+                        curStart = i;
+                        matrix[i][j] = 1;
+                    }
+                } else {
+                    matrix[i][j] = Math.max(matrix[i - 1][j], matrix[i][j - 1]);
+                }
+                //globalLength 不可能发生在不相等的时候，必须发生在相等的时候，那么这里就有个小技巧
+                //而start 可以通过globalLength的中继站拿到
+                //start = i - globalLength + 1;
+                if (globalLength < matrix[i][j]) {
+                    globalLength = matrix[i][j];
+                    globalStart = curStart;
+                }
+            }
+        }
+
+         */
+         错误分析：
+        //我的解法之所以流产
+        //是盲目套用"多设置一个"的策略让我的matrix无意义的变大；因为发现就算一边增加一个line还是不行；
+        //在logic中没有什么太大帮助去处理edge case; 反而把自己绕晕了；
+        //另外就是总是想从前往后去找START"东山再起"的条件
+        //而没有从后往前推倒（可以逆向，通过i去找，确实这点需要积累 才行）
+
+        //老师的Approach:
+        //High level:
+        //set up an exactly same size of string matrix;
+        //use matrix to represent the curLength;
+        //Base case:
+        //boolean equal = s.charAt(i) == t.charAt(j);
+        //if (equals) {
+        //if (i == 0 || j== 0) { [这里的结果至多是等于1的, 而且任意一个情况都有可能满足这个条件，所以用一个"||"]
+        // matrix[i][j] = 1;
+        //}
+        //}
+        //induction rule:
+        //if (equals) then update the matrix[i][j]
+        //还是inherit previous substring
+        //matrix[i][j] = matrix[i - 1][j - 1] + 1;
+        int longest = 0;
+        int start = 0;
+        int[][] result = new int[s.length()][t.length()];
+        for (int i = 0; i < s.length(); i++) {
+            for (int j = 0; j < t.length(); j++) {
+                if (s.charAt(i) == t.charAt(j)) {
+                    if (i == 0 || j == 0) {
+                        result[i][j] = 1;
+                    } else {
+                        result[i][j] = result[i - 1][j - 1] + 1;
+                    }
+                    if (longest < result[i][j]) {
+                        longest = result[i][j];
+                        start = i - longest + 1;
+                    }
+                }
+            }
+        }
+        return s.substring(start, start + longest);
+    }
+}
