@@ -1,0 +1,284 @@
+package DP_2D;
+solid square 没得什么说的；
+
+1. Find Largest Square
+/*
+Determine the largest square of 1s in a binary matrix (a binary matrix only contains 0 and 1),
+ return the length of the largest square.
+
+Assumptions
+
+The given matrix is not null and guaranteed to be of size N * N, N >= 0
+Examples
+                  0  0  0 0  0
+{ {0, 0, 0, 0},   0  0  0 0  0
+
+  {1, 0, 1, 1},   0  1  0 1  1
+
+  {0, 1, 1, 1},   0  0  1 1  2
+
+  {1, 0, 1, 1}}   0  1  0 1  2
+
+the largest square of 1s has length of 2
+ */
+
+
+//High level
+//set up a 2D matrix to find what is the
+//largest square of included its current position
+//use an extra large matrix to store the element;
+
+//base case:
+//result[0][0] = 0
+
+//induction rule:
+//if (matrix[i][j] == 1) {
+//  result[i][j] = Math.min(result[i][j - 1], result[i - 1][j]) + 1;
+//  result[i][j] = Math.min(result[i - 1][j - 1] + 1, result[i][j]);
+//}
+//
+
+
+public class LargestSquareOf1s {
+    public static void main(String[] args) {
+        int[][] matrix = {
+                {1, 1, 1, 1},
+                {1, 1, 1, 0},
+                {1, 1, 1, 1},
+                {1, 1, 0, 1}
+        };
+        System.out.println(getMaximumSquareOf1s(matrix));
+    }
+
+    private static int getMaximumSquareOf1s(int[][] matrix) {
+        if (matrix == null || matrix.length == 0 || matrix[0].length == 0) {
+            return 0;
+        }
+        int[][] result = new int[matrix.length + 1][matrix[0].length + 1];
+        int max = 0;
+        for (int i = 1; i < result.length; i++) {
+            for (int j = 1; j < result[0].length; j++) {
+                if (matrix[i - 1][j - 1] == 1) {
+                    result[i][j] = Math.min(result[i][j - 1], result[i - 1][j]) + 1;
+                    result[i][j] = Math.min(result[i - 1][j - 1] + 1, result[i][j]);
+                    if (max < result[i][j]) {
+                        max = result[i][j];
+                    }
+                }
+
+            }
+        }
+        return max;
+    }
+}
+
+2. Largest Across of 1s
+package DP_2D;
+
+/*
+Given a matrix that contains only 1s and 0s,
+ find the largest cross which contains only 1s,
+ with the same arm lengths and the four arms joining at the central point.
+
+Return the arm length of the largest cross.
+
+Assumptions
+
+The given matrix is not null, has size of N * M, N >= 0 and M >= 0.
+Examples
+{ {0, 0, 0, 0},
+
+  {1, 1, 1, 1},
+
+  {0, 1, 1, 1},
+
+  {1, 0, 1, 1} }
+
+从上到下：
+{0, 0, 0, 0}
+{1, 1, 1, 1}
+{0, 2, 2, 2}
+{1, 0, 3, 3}
+
+左到右：
+{0, 0, 0, 0}
+{1, 2, 3, 4}
+{0, 1, 2, 3}
+{1, 0, 1, 2}
+
+下到上
+{0, 0, 0, 0}
+{1, 2, 3, 3}
+{0, 1, 2, 2}
+{1, 0, 1, 1}
+
+右到左:
+{0, 0, 0, 0}     final:{0, 0, 0, 0}
+(4, 3, 2, 1}           {1, 1, 1, 1}
+{0, 3, 2, 1}           {0, 1, 2, 1}
+{1, 0, 2, 1}           {1, 0, 1, 1}
+
+the largest cross of 1s has arm length is 2.
+
+//use four 2D matrix to record the current consecutive 1s in each direction:
+//for each point in the original position
+//select smallest in each direction and select the biggest in the final matrix;
+ */
+public class LongestAcrossOf1s {
+    public static void main(String[] args) {
+        int[][] matrix = {
+                {0, 0, 0, 0},
+                {1, 1, 1, 1},
+                {0, 1, 1, 1},
+                {1, 0, 1, 1}
+        };
+        System.out.println(getLargestAcross1s(matrix));
+    }
+
+    private static int getLargestAcross1s(int[][] matrix) {
+        if (matrix.length == 0 || matrix[0].length == 0) {
+            return 0;
+        }
+        int n = matrix.length;
+        int m = matrix[0].length;
+        int[][] leftRight = getLeftRight(matrix);
+        int[][] upDown = getUpDown(matrix);
+        int[][] rightLeft = getRightLeft(matrix);
+        int[][] downUp = getDownUp(matrix);
+        int[][] result = getResult(leftRight, upDown, rightLeft, downUp);
+        int max = 0;
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < m; j++) {
+                if (max < result[i][j]) {
+                    max = result[i][j];
+                }
+             }
+        }
+        return max;
+    }
+
+    private static int[][] getResult(int[][] leftRight, int[][] upDown, int[][] rightLeft, int[][] downUp) {
+        int n = leftRight.length;
+        int m = leftRight[0].length;
+        int[][] res = new int[n][m];
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < m; j++) {
+                res[i][j] = Math.min(leftRight[i][j], upDown[i][j]);
+                res[i][j] = Math.min(res[i][j], rightLeft[i][j]);
+                res[i][j] = Math.min(res[i][j], downUp[i][j]);
+            }
+        }
+        return res;
+    }
+
+    private static int[][] getLeftRight(int[][] matrix) {
+        int n = matrix.length;
+        int m = matrix[0].length;
+        int[][] res = new int[n][m];
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < m; j++) {
+                if (matrix[i][j] == 1) {
+                    if (j == 0) {
+                        res[i][j] = 1;
+                    } else {
+                        res[i][j] = res[i][j - 1] + 1;
+                    }
+                }
+            }
+        }
+        return res;
+    }
+
+    private static int[][] getUpDown(int[][] matrix) {
+        int n = matrix.length;
+        int m = matrix[0].length;
+        int[][] res = new int[n][m];
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < m; j++) {
+                if (matrix[i][j] == 1) {
+                    if (i == 0) {
+                        res[i][j] = 1;
+                    } else {
+                        res[i][j] = res[i - 1][j] + 1;
+                    }
+                }
+            }
+        }
+        return res;
+    }
+
+    private static int[][] getRightLeft(int[][] matrix) {
+        int n = matrix.length;
+        int m = matrix[0].length;
+        int[][] res = new int[n][m];
+        for (int i = n - 1; i >= 0; i--) {
+            for (int j = m - 1; j >= 0; j--) {
+                if (matrix[i][j] == 1) {
+                    if (j == m - 1) {
+                        res[i][j] = 1;
+                    } else {
+                        res[i][j] = res[i][j + 1] + 1;
+                    }
+                }
+            }
+        }
+        return res;
+    }
+
+    private static int[][] getDownUp(int[][] matrix) {
+        int n = matrix.length;
+        int m = matrix[0].length;
+        int[][] res = new int[n][m];
+        for (int i = n - 1; i >= 0; i--) {
+            for (int j = m - 1; j >= 0; j--) {
+                if (matrix[i][j] == 1) {
+                    if (i == n - 1) {
+                        res[i][j] = 1;
+                    } else {
+                        res[i][j] = res[i + 1][j] + 1;
+                    }
+                }
+            }
+        }
+        return res;
+    }
+}
+
+public class LargestSquareSurroundedBy1 {
+    public static void main(String[] args) {
+        int[][] matrix = {
+                {1, 1, 1, 1},
+                {1, 0, 1, 0},
+                {1, 1, 1, 1},
+                {0, 0, 1, 1}
+        };
+        System.out.println(getMaximum(matrix));
+    }
+
+    private static int getMaximum(int[][] matrix) {
+        int max = 0;
+        //从左上角到左下角
+        int N = matrix.length;
+        int M = matrix[0].length;
+        int[][] leftRight = new int[N + 1][M + 1];
+        int[][] upDown = new int[N + 1][M + 1];
+        for (int i = 0; i < N; i++) {
+            for (int j = 0; j < M; j++) {
+                if (matrix[i][j] == 1) {
+                    leftRight[i + 1][j + 1] = leftRight[i + 1][j] + 1;
+                    upDown[i + 1][j + 1] = upDown[i][j + 1] + 1;
+                    for (int maxLength = Math.min(leftRight[i + 1][j + 1], upDown[i + 1][j + 1]); maxLength >= 1;
+                    maxLength--) {
+                        if (leftRight[i + 2 - maxLength][j + 1] >= maxLength &&
+                                (upDown[i + 1][j + 2 - maxLength]) >= maxLength) {
+                            max = Math.max(max, maxLength);
+                        }
+                    }
+                }
+            }
+        }
+        return max;
+    }
+}
+
+
