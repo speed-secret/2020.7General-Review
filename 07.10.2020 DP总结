@@ -1,0 +1,286 @@
+Fib
+DP:
+//Base case:
+long a = 0;
+long b = 1;
+//induction rule:
+long temp = b;
+a = b;
+b = a + b;
+k--;
+
+public long fib(int k) {
+  if (k < 1) {
+    return 0;
+  }
+  int a = 0;
+  int b = 1;
+  while (k > 1) {
+    long temp = a + b;
+    a = b;
+    b = temp;
+    k--;
+  }
+  return b;
+}
+
+Longest Ascending Subarray
+          cl = 4 
+          gl = 4  
+                           i
+int[] array = {2, 3, 1, 8, 2, 4, 8, 9};
+//base case:
+int curLength = 1;
+int globalLength = 1;
+//induction rule:
+i starts from 1:
+if (array[i] < array[i - 1])
+then reset the curLength = 1;
+globalLength = max(globalLength, curLength);
+
+public int longestAscendingSubarray(int[] array) {
+  if (array == null || array.length == 0) {
+    return 0;
+  }
+  int curLength = 1;
+  int globalLength = 1;
+  for (int i = 1; i < array.length; i++) {
+    if (array[i] <= array[i - 1]) {
+      curLength = 1;
+    } else {
+      curLength++;
+    }
+    globalLength = Math.max(globalLength, curLength);
+  }
+  return globalLength;
+}
+
+Longest Ascending Subarray with its left index and rightIndex
+public int longestAscendingSubarrayII(int[] array) {
+  if (array == null || array.length == 0) {
+    return 0;
+  }
+  int curLeft = 0;
+  int globalLeft = 0;
+  int globalRight = 0;
+  int curLength = 1;
+  int globalLength = 1;
+  for (int i = 1; i < array.length; i++) {
+    if (array[i] <= array[i - 1]) {
+      curLength = 1;
+      curLeft = i;
+    } else {
+      curLength++;
+      if (globalLength < curLength) {
+        globalLength = curLength;
+        globalLeft = curLeft;
+        globalRight = i;
+      } 
+  }
+  System.out.println(Arrays.asList(globalLeft, globalRight));
+  return globalLength;
+}
+
+MaxProduct of Cutting Rope
+左大段，右小段
+//base case
+maxProduct[1] = 1;
+maxProduct[2] = 1;
+//induction rule
+maxProduct[i] represent the maxProduct of cutting a length of i rope;
+
+public int getMaxProduct(int n) {
+// assume n >= 2;
+// 这段绳子必须要能够切一刀
+  if (n == 2) {
+    return 1;
+  }
+  int[] maxProduct = new int[n + 1];
+  maxProduct[1] = 1;
+  maxProduct[2] = 1;
+  for (int i = 3; i <= n; i++) {
+    for (int j = 1; j <= i / 2; j++) {
+    _ _ _ 2 * 1;
+    
+    _ _ _ _ maxProduct[4], max(maxProduct[3], 3) * 1), max(maxProduct[2], 2) * 2
+      maxProduct[i] = Math.max(maxProduct[i], Math.max(maxProduct[i - j], i - j) * j);
+    }
+  }
+  return maxProduct[n];
+}
+
+ArrayHopper I && II && III
+1. Can index 0 jump to the end
+2. What is the minimum jump to the end
+3. What is the minimum jump out of the array;
+
+        0  1  2  3  4
+array: {2, 2, 0, 1, 2} 
+
+//base case:
+末位不用jump自动为true；
+因此整个算法的逻辑也是从后往前来推倒着判断
+canJump[array.length - 1] = true;
+//induction rule:
+canJump[i] represent can jump from index i to the end
+
+public boolean canJump(int[] array) {
+  if (array == null || array.length == 0) {
+    return true;
+  }
+  boolean[] canJump = new boolean[array.length];
+  for (int i = array.length - 2; i >= 0; i--) {
+    if (array[i] + i >= array.length - 1) {
+      canJump[i] = true;
+    } else {
+      for (int j = array[i]; j >= 1; j--) {
+        if (canJump[j + array[j]]) {
+          canJump[i] = true;
+          break;
+        }
+      }
+    }
+  }
+  return canJump[0];
+}
+
+//minJump[i] which represent the minJump from index 0 to index i;
+public int getMinJump(int[] array) {
+  if (array == null || array.length == 0) {
+    return 0;
+  }
+  int[] minJump = new int[array.length];
+  //base case:
+  //there is no step cost to jump to index 0 from index 0;
+  minJump[0] = 0;
+  for (int i = 1; i < array.length; i++) {
+    minJump[j] = -1;
+    for (int j = 0; j < i; j++) {
+      if (minJump[j] != -1 && minJump[j] + j >= i) {
+        if (minJump[i] == -1 || minJump[i] > minJump[j] + 1) {
+          minJump[i] = minJump[j] + 1;
+        }
+      }
+    }
+  }
+  return minJump[array.length - 1];
+}
+
+//minJump[i] which represent the minJump from index 0 to i;
+public int getMinJump(int[] array) {
+  if (array == null || array.length == 0) {
+    return 0;
+  }
+  int[] minJump = new int[array.length + 1];
+  //base case:
+  //there is no step cost to jump to index 0 from index 0;
+  minJump[0] = 0;
+  for (int i = 1; i <= array.length; i++) {
+    minJump[j] = -1;
+    for (int j = 0; j < i; j++) {
+      if (minJump[j] != -1 && minJump[j] + j >= i) {
+        if (minJump[i] == -1 || minJump[i] > minJump[j] + 1) {
+          minJump[i] = minJump[j] + 1;
+        }
+      }
+    }
+  }
+  return minJump[array.length];
+}
+
+Largest subArraySum
+public int largestSum(int[] input) {
+int lastMax = input[0];
+int globalMax = input[0];
+for (int i = 1; i < input.length; i++) {
+  lastMax = Math.max(lastMax + input[i], input[i]);
+  globalMax = Math.max(globalMax, lastMax);
+}
+return globalMax;
+
+Largest subArraySumII
+        c   c  c
+{2, -3, -1, 0, 1, 9}
+public int largestSum(int[] input) {
+int lastMax = input[0];
+int globalMax = input[0];
+int curLeft = 0;
+int globalLeft = 0;
+int globalRight = 0;
+for (int i = 1; i < input.length; i++) {
+  if (lastMax < 0) {
+    curLeft = i;
+  }
+  lastMax = Math.max(lastMax + input[i], input[i]);
+  if (globalMax < lastMax) {
+    globalLeft = curLeft;
+    globalRight = i;
+    globalMax = lastMax;
+  }
+  globalMax = Math.max(globalMax, lastMax);
+}
+System.out.println(Arrays.asList(globalLeft, globalRight);
+return globalMax;
+
+
+Dictionary Word I
+String s
+String[] dict
+
+//base case
+boolean[] cut = new boolean[s.length() + 1];
+cut[0] = 0; //empty string is always true;
+//induction rule:
+cut[i] means if we can find the substring starts from i to j of input s in the dictionary
+
+public static boolean checkIfDictWordsCanbeFind(String s, String[] dict) {
+  Set<String> dictSet = getSet(dict);
+  for (int i = 1; i <= s.length(); i++) {
+    for (int j = 0; j < i; j++) {
+      if (cut[j] && dictSet.contains(s.substring(j, i))) {
+        cut[i] = true;
+        break;
+      }
+    }
+  }
+  return cut[s.length()];
+}
+
+private Set<String> getSet(String[] dict) {
+  Set<String> set = new HashSet<>();
+  for (String str : dict) {
+    set.add(str);
+  }
+  return set;
+}
+
+Edit Distance
+//use an extra colum and row;
+//base case(will be covered in the induction rule);
+//result[0][0] = 0;
+//induction rule:
+//if two chars matched just inheritance the old one
+//if two chars don't match just the minimum of those three directions and add one into current one
+//so it can be updated
+
+public int minStep(String s, String t) {
+  int[][] result = new int[s.length() + 1][t.length() + 1];
+  //base case(will be covered in the induction rule);
+  //result[0][0] = 0;
+  for (int i = 0; i <= s.length(); i++) {
+    for (int j = 0; j <= t.length(); j++) {
+      if (i == 0) {
+        result[i][j] = j;
+      } else if (j == 0) {  
+        result[i][j] = i;
+      } else if (s.charAt(i - 1) == t.charAt(j - 1)) {
+        result[i][j] = result[i - 1][j - 1];
+      } else {
+        //min(a,b,c);
+        result[i][j] = Math.min(result[i - 1][j - 1] + 1, result[i - 1][j] + 1);
+        result[i][j] = Math.min(result[i][j], result[i][j - 1] + 1);
+      }
+    }
+  }
+  return result[s.length()][t.length()];
+}
