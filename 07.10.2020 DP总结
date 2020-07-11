@@ -284,3 +284,413 @@ public int minStep(String s, String t) {
   }
   return result[s.length()][t.length()];
 }
+
+Largest Square of 1s
+一个非常类似与Edit Distance的题目：
+找最大的实心的正方形；
+1 0 1 0
+1 1 1 1
+0 1 1 1
+
+0 0 0 0 0
+0 1 0 1 0
+0 1 1 1 1
+0 0 1 2 2
+
+use an extra col and an extra row
+public int getLargestSquare(int[][] matrix) {
+  if (matrix == null || matrix.length == 0 || matrix[0].length == 0) {
+    return 0;
+  }
+  int N = matrix.length;
+  int M = matrix[0].length;
+  int[][] result = new int[N + 1][M + 1];
+  //base case:
+  result[0][0] = 0;
+  //induction rule:
+  result[i][j] represent the largest square
+  int max = 0;
+  for (int i = 1; i <= N; i++) {
+    for (int j = 1; j <= M; j++) {
+      if (matrix[i - 1][j - 1] == 1) {
+        result[i][j] = Math.min(result[i - 1][j - 1] + 1, result[i - 1][j] + 1);
+        result[i][j] = Math.min(result[i][j], resutl[i][j - 1] + 1);
+        max = Math.max(result[i][j], max);
+      } 
+    }
+  }
+  return max;
+}
+
+
+
+Longest consectuive 1s
+//找一维Array 当中最长连续的1
+eg: [1, 0, 1, 1, 1, 0, 1];
+int max = 0;
+int globalMax = 0;
+for (int i = 0; i < array.length; i++) {
+  if (array[i] == 1) {
+    max++;
+    globalMax = Math.max(globalMax, max);
+  } else {
+    max = 0;
+  }
+}
+return globalMax;
+
+Longest cross of 1s
+set up 4 int[][] matrixes
+
+the original matrix
+1 0 1 1
+0 1 1 0
+1 1 1 0
+0 1 0 1
+four directions:
+int n = matrix.length;
+int m = matrix[0].length;
+int[][] leftToRight = new int[n][m];
+1 0 1 2
+0 1 2 0
+1 2 3 0
+0 1 0 1
+int[][] upToDown = new int[n][m];
+int[][] rightToLeft = new int[n][m];
+int[][] downToUp = new int[n][m];
+
+for (int i = 0; i < n; i++) {
+  int sum = 0;
+  for (int j = 0; j < m; j++) {
+    if (matrix[i][j] == 1) {
+      sum++;
+      leftToRight[i][j] = sum;
+    } else {
+      sum = 0;
+    }
+  }
+}
+
+for (int j = 0; j < m; j++) {
+  for(int i = 0; i < n; i++) {
+    if (matrix[i][j] == 1) {
+      sum++;
+      upToDown[i][j] = sum;
+    } else {
+      sum = 0;
+    }
+  }
+}
+
+for (int i = n - 1; i >= 0; i--) {
+  for (int j = m - 1; j >= 0; j--) {
+    if (matrix[i][j] == 1) {
+      sum++;
+      RightToLeft[i][j] = sum;
+    } else {
+      sum = 0;
+    }
+  }
+}
+
+for (int j = m - 1; j >= 0; j--) {
+  for (int i = n - 1; i >= 0; i--) {
+    if (matrix[i][j] == 1) {
+      sum++;
+      DownToUp[i][j] = sum;
+    } else {
+      sum = 0;
+    }
+  }
+}
+
+int res = 0;
+int globalMax = 0;
+for (int i = 0; i < n; i++) {
+  for (int j = 0; j < m; j++) {
+    res = Math.min(leftToRight[i][j], upToDown[i][j]);
+    res = Math.min(res, rightToLeft[i][j]);
+    res = Math.min(res, downToUp[i][j]);
+    globalMax = Math.max(globalMax, res);
+  }
+}
+return globalMax;
+
+Largest square surrounded by one
+use an extra col and row;
+//from upper left to rightDown;
+int[][] leftToRight = new int[n + 1][m + 1];
+int[][] topToDown = new int[n + 1][m + 1];
+//base case
+leftToRight[0][0] = 0;
+topToDown[0][0] = 0;
+for (int i = 0; i < n; i++) {
+  for (int j = 0; j < m; j++) { 
+    if (matrix[i][j] == 1) {
+      leftToRight[i + 1][j + 1] = leftToRight[i + 1][j] + 1;
+      topToDown[i + 1][j + 1] = topToDown[i][j + 1] + 1;
+      //check the corner point 
+      for (int maxLength = Math.min(leftToRight[i + 1][j + 1], topToDown[i + 1][j + 1]); maxLength >= 1; maxLength--) {
+        if (leftRight[i + 2 - maxLength][j + 1] >= maxLength &&  topToDown[i + 1][j + 2 - maxLength] >= maxLength) {
+          max = Math.max(maxLength, max);
+        }
+      }
+    }
+  }
+}
+return max;
+}
+
+Largest X of 1s
+0 1 0 1
+0 0 1 0
+1 1 1 1
+
+int[][] leftUpDown = new int[N][M];
+(0, 0) (1, 1) (2, 2);
+for (int i = 0; i < Math.min(N,M); i++) {
+  int j = i;
+  int sum = 0;
+  if (matrix[i][j] = 1) {
+    sum++;
+    leftUpDown[i][j] = sum;
+  } else {
+    sum = 0;
+  }
+similar, use 4 direction matrix
+
+int[][] leftUpDown
+int[][] leftDownUp
+int[][] RightUpDown
+int[][] RightDownUp
+
+n = 3
+m = 4;
+(2, 0)
+(1, 0) (2, 1) 
+(0, 0) (1, 1) (2, 2)
+(0, 1) (1, 2) (2, 3);
+(0, 2) (1, 3)
+(0, 3)
+for (int i = n - 1, j = n - i - 1; i >= 0; i--) {
+    i = 2;  i = 
+    j = 0;
+    if (matrix[i][j] == 1) {
+      sum++;
+      leftUpDown[i][j] = sum;
+    } else {
+      sum = 0;
+    }
+}
+
+Largest Square of Matches
+//another question of surrounded by 1s
+matrix[i][j] == 1; represent the right direction has one match
+matrix[i][j] == 2; represent the bottom direction has one match
+matrix[i][j] == 3; represent the right and the bottom direction has one match
+
+set up two 2-D matrixes
+RightLeft[][] = new int[N + 1][M + 1];
+BottomUp[][] = new int[N + 1][M + 1];
+
+{{3, 1, 1, 3, 0},
+
+ {2, 0, 0, 2, 0},
+
+ {3, 1, 3, 0, 0},
+
+ {2, 0, 2, 0, 0},
+
+ {1, 1, 0, 0, 0}}
+ 
+  3--1--1--3--0
+  |        | 
+  2        2  0
+  |        |
+  3--1--3--0  0
+  |     |  
+  2     2  0  0
+  |     |  
+  1--1--0  0  0
+  
+  好的，现在已经把对应的火柴搭建出来了，那么现在已经肉眼看出来最大的sqaure 是2了
+  怎么找呢？
+  //another question of surrounded by 1s
+matrix[i][j] == 1; represent the right direction has one match
+matrix[i][j] == 2; represent the bottom direction has one match
+matrix[i][j] == 3; represent the right and the bottom direction has one match
+
+set up two 2-D matrixes
+RightLeft[][] = new int[N + 1][M + 1];
+BottomUp[][] = new int[N + 1][M + 1];
+多出来的line 和col是在最右下方；
+
+那么从右下开始往左上找吧
+int max = 0;
+for (int i = N - 1; i >= 0; i--) {
+  for (int j = M - 1; j >= 0; j--) {
+    if (matrix[i][j] == 1) {
+      RightLeft[i][j] = RightLeft[i][j + 1] + 1;
+    } else if (matrix[i][j] == 2) {
+      BottomUp[i][j] = BottomUp[i + 1][j] + 1;
+    } else if (matrix[i][j] == 3) {
+      RightLeft[i]][j] = RightLeft[i][j + 1] + 1;
+      BottomUp[i][j] = BottomUp[i + 1][j] + 1;
+    }
+    //求最大的match square
+    for (int maxLength = Math.min(RightLeft[i][j], BottomUp[i][j]); maxLength >= 1; maxLength--) {
+      if (RightLeft[i + maxLength][j] >= maxLength && BottomUp[i][j + maxLength] >= maxLength) {
+        max = Math.max(max, maxLength);
+      }
+    }
+  }
+}
+return max;
+}
+
+**************噼里啪啦！！*******************
+
+
+Largest subMatrix Sum
+The first Approach: O(n^4);
+The second Approach: O(n^3);
+
+here only demo for the second approach:
+scan all the submatrix sub between the top row to bottom row 
+
+input: int[][] matrix
+int result = Integer.MIN_VALUE;
+for (int i = 0; i < N; i++) {
+  int[] cur = new int[M];
+  for (int j = i; j < N; j++) {
+    add(cur, matrix[j]);
+    result = Math.max(result, prefixSum(cur));
+  }
+}
+return result;
+
+private void add(int[] cur, int[] array) {
+  for (int i = 0; i < cur.length; i++) {
+    cur[i] += array[i];
+  }
+}
+
+private int prefixSum(int[] cur) {
+  int lastMax = cur[0];
+  int globalMax = cur[0];
+  for (int i = 1; i < cur.length; i++) {
+    lastMax = Math.max(lastMax + cur[i], cur[i]);
+    globalMax = Math.max(lastMax, globalMax);
+  }
+  return globalMax;
+}
+
+Longest common substring
+String s
+String t
+      a e d d
+  0 0 1 2 3 4
+  0 0 0 0 0 0
+e 1 0 0 1 1 1
+d 2 0 0 1 2 2
+
+不等就是继承，相等就是往对角去拿
+在能更新最的时候记录下当前的max
+
+int[][] result = new int[s.length() + 1][t.length() + 1];
+int startIndex = 0;
+int maxLength = 0;
+for (int i = 1; i < s.length(); i++) {
+  for (int j = 1; j < t.length(); j++) {
+    if (s.charAt(i - 1) == t.charAt(i - 1)) {
+      result[i][j] = result[i - 1][j - 1] + 1;
+      if (maxLength < result[i][j]) {
+        maxLength = result[i][j];
+        startIndex = i - maxLength + 1;
+      }
+    } else {
+      result[i][j] = Math.max(result[i - 1][j], result[i][j - 1]);
+    }
+  }
+}
+return s.substring(startIndex, startIndex + maxLength);
+}
+
+
+
+Longest common subsequence
+String s: ced
+String t: cd
+int N = s.length();
+int M = t.length();
+int[][] result = new int[N + 1][M + 1];
+      a e d d
+  0 0 1 2 3 4
+  0 0 0 0 0 0
+c 1 0 0 0 0 0
+d 2 0 0 0 1 1
+for (int i = 1; i < N; i++) {
+  for (int j = 1; j < M; j++) {
+    if (s.chatAt(i - 1) == t.charAt(j - 1)) {
+        result[i][j] = result[i - 1][j - 1] + 1;
+    } else {
+        result[i][j] = Math.max(result[i][j - 1], result[i - 1][j]);
+    }
+  }
+}
+return result[N][M];
+}
+
+And it can be update to :
+using two rows
+and rapidly cover each row one by one
+ if (source.length() == 0 || target.length() == 0) {
+            return 0;
+        }
+        if (target.length() > source.length()) {
+          return longest(target, source);
+        }
+        int[] lastRow = new int[target.length() + 1];
+        for (int i = 1; i <= source.length(); i++) {
+            int[] curRow = new int[target.length() + 1];
+            for (int j = 1; j <= target.length(); j++) {
+                if (source.charAt(i - 1) == target.charAt(j - 1)) {
+                    curRow[j] = lastRow[j - 1] + 1;
+                } else {
+                    curRow[j] = Math.max(lastRow[j], curRow[j - 1]);
+                }
+            }
+            for (int j = 0; j <= target.length(); j++) {
+                lastRow[j] = curRow[j];
+            }
+        }
+        return lastRow[target.length()];
+    }
+
+
+Cutting wood
+input: L = 10; array = {2, 4, 7}
+//create an int[] array to represent each part of the wood stick
+int[] wood = new int[array.length + 2];
+for (int i = 1; i <= array.length; i++) {
+  wood[i] = array[i - 1];
+}
+wood[wood.length - 1] = length;
+int[][] result = new int[wood.length - 1][wood.length - 1];
+for (int i = 1; i < wood.length; i++) {
+  for (int j = i - 1; j >= 0; j--) {
+    //base case: which size = 0;
+    if (j == i - 1) {
+      result[j][i] = 0;
+    } else {
+      result[j][i] = Integer.MAX_VALUE;
+      for (int k = j + 1; k < i; k++) {
+        result[j][i] = Math.min(result[j][i], result[j][k] + result[k][i]);
+      }
+      result[i][j] += wood[i] - wood[j];
+    }
+  }
+}
+return result[0][wood.length - 1];
+}
+
