@@ -1,0 +1,101 @@
+package QueueAndStack;
+import java.util.*;
+/*
+Given an array that is initially stored in one stack,
+sort it with one additional stacks (total 2 stacks).
+
+After sorting the original stack should contain the sorted integers
+and from top to bottom the integers are sorted in ascending order.
+
+Assumptions:
+
+The given stack is not null.
+There can be duplicated numbers in the give stack.
+Requirements:
+
+No additional memory, time complexity = O(n ^ 2).
+ */
+
+/*
+eg: s1: 2, 3, 9, 0
+    s2:
+
+  goal: 9 -> 3 -> 2 -> 0;
+
+High level:
+use another stack -> stack2(s2) as a buffer and use two while loops to sort s1
+
+Details:
+use a int variable prevMax = Integer.MAX_VALUE;
+traverse all the elements in the stack one and put each element into the s2,
+use another int variable curMax to record the current max element just traversed;
+
+then put the curMax back to the s1, then put all the element at s2 back to s1 (exclude the curmax element);
+replace curMax as prevMax; also, use another int variable count to record the duplicates
+do it iteratively then the terminal condition is the top element in s1 is the same as prevMax
+ */
+
+
+
+public class SortwithTwoStacks {
+    public static void main(String[] args) {
+        Deque<Integer> stack1 = new ArrayDeque<>();
+        stack1.push(2);
+        stack1.push(0);
+        stack1.push(9);
+        stack1.push(3);
+        stack1.push(3);
+        sortByTwoStacks(stack1);
+        while (!stack1.isEmpty()) {
+            System.out.println(stack1.pollFirst());
+        }
+    }
+
+    private static void sortByTwoStacks(Deque<Integer> s1) {
+        if (s1 == null || s1.isEmpty()) {
+            return;
+        }
+        Deque<Integer> s2 = new ArrayDeque<>();
+        sort(s1, s2);
+    }
+
+    private static void sort(Deque<Integer> s1, Deque<Integer> s2) {
+        int preMax = Integer.MAX_VALUE;
+        //s1: 9 3 3 2 0
+        //s2:       ele: 2 curMax = 0 count = 0
+        while (!s1.isEmpty() && s1.peekFirst() < preMax) {
+            int curMax = Integer.MIN_VALUE;
+            int count = 0;
+            while (!s1.isEmpty() && s1.peekFirst() < preMax) {
+                int ele = s1.pollFirst();
+                if (ele > curMax) {
+                    curMax = ele;
+                    count = 1;
+                } else if (ele == curMax) {
+                    count++;
+                }
+                s2.offerFirst(ele);
+            }
+            while (count-- > 0) {
+                s1.offerFirst(curMax);
+            }
+            while (!s2.isEmpty()) {
+                int temp = s2.pollFirst();
+                if (temp != curMax) {
+                    s1.offerFirst(temp);
+                }
+            }
+            preMax = curMax;
+        }
+    }
+}
+
+//一开始手动debug的时候觉得没有问题，然后交给IDE就出现死循环了，😅
+//印象中是有一个while loop是：
+// while (!s1.isEmpty() && s1.peekFirst() < preMax) {
+//没想到记错位置了，但是反思的时候觉得凭记忆去写代码这本身就不靠谱，然后再一点点debug，终于发现
+//原来把之前的curMax又抛到新一轮循环里面去了
+
+//其实脑子在过test case的时候是不带着curMax的，但实际上写代码的时候就一笔带过，没有仔细检查；
+//今后还是要逐字逐句的去认真检查，然后再下笔！
+//跑完自己的test case之后又试了几个其他的，然后摆到laicode里通过了才算完；
